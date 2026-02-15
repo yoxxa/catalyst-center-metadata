@@ -6,6 +6,7 @@ from bcs_oi_api.models import (
     Contract,
     PINDetails,
     RiskMitigationDetails,
+    SoftwareTrackMember
 )
 class BCSOICollector:
     def __init__(self, client_id, client_secret, region) -> None:
@@ -19,13 +20,15 @@ class BCSOICollector:
         self.contracts: pl.DataFrame = None
         self.place_in_network: pl.DataFrame = None
         self.risk_mitigations: pl.DataFrame = None
+        self.software_track: pl.DataFrame = None
 
     def collect_data(self) -> None:
         #self.get_devices()
         ##self.get_assets()
         #self.get_contracts()
         #self.get_place_in_network()
-        self.get_risk_mitigations()
+        #self.get_risk_mitigations()
+        self.get_software_track()
 
     def get_devices(self) -> list[dict]:
         self.devices = pl.DataFrame(
@@ -57,4 +60,9 @@ class BCSOICollector:
     def get_risk_mitigations(self) -> None:
         self.risk_mitigations = pl.DataFrame(
             [dict(risk_mitigation) for risk_mitigation in self.bcs_sdk.get_output(model=RiskMitigationDetails)]
+        )
+
+    def get_software_track(self) -> None:
+        self.software_track = pl.DataFrame(
+            [dict(software_track) for software_track in self.bcs_sdk.get_output(model=SoftwareTrackMember)]
         )
