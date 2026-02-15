@@ -1,3 +1,4 @@
+import polars as pl
 from bcs_oi_api import BCSOIAPI
 from bcs_oi_api.models import (
     Device,
@@ -11,22 +12,33 @@ class BCSOICollector:
             client_secret = client_secret,
             region = region
         )
-        self.data: list[dict] = list()
+        self.devices: pl.DataFrame = None
+        self.assets: pl.DataFrame = None
+        self.contracts: pl.DataFrame = None
 
     def collect_data(self) -> None:
         self.get_devices()
         self.get_assets()
+        self.get_contracts()
 
     def get_devices(self) -> list[dict]:
-        self.data.extend(
+        self.devices = pl.DataFrame(
             [dict(device) for device in self.bcs_sdk.get_output(model = Device)]
         )
 
-    # TODO - improve time space complexity of this call
     def get_assets(self) -> None:
-        assets = [dict(asset) for asset in self.bcs_sdk.get_output(model=Asset)]
-        for row in self.data:
+        self.assets = pl.DataFrame(
+            [dict(asset) for asset in self.bcs_sdk.get_output(model=Asset)]
+        )
+
+    def get_contracts(self) -> None:
+        contracts = [dict(contract) for contract in self.bcs_sdk.get_output(model=Contract)]
+        # Transform nested data into valid dict's
+        for row in contracts:
             row.update({
-               "assets": [dict(asset) for asset in assets if asset["device_id"] == row["device_id"]]
+                "base_product_id_list": [dict(base_product) for base_product in row["base_product_id_list"]],
+                "orderable_product_id_list": [dict(orderable_product) for orderable_product in row["orderable_product_id_list"]]
             })
-            print(row)
+        self.contracts = pl.DataFrame(
+            contracts
+        )

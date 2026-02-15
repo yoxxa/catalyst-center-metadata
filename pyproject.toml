@@ -5,7 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "bcs_oi_api"
+    "bcs_oi_api",
+    "polars"
 ]
 
 [build-system]
