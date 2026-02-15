@@ -14,7 +14,19 @@ class BCSOICollector:
         self.data: list[dict] = list()
 
     def collect_data(self) -> None:
-        self.data.extend(self.get_devices())
+        self.get_devices()
+        self.get_assets()
 
     def get_devices(self) -> list[dict]:
-        return [dict(device) for device in self.bcs_sdk.get_output(model = Device)]
+        self.data.extend(
+            [dict(device) for device in self.bcs_sdk.get_output(model = Device)]
+        )
+
+    # TODO - improve time space complexity of this call
+    def get_assets(self) -> None:
+        assets = [dict(asset) for asset in self.bcs_sdk.get_output(model=Asset)]
+        for row in self.data:
+            row.update({
+               "assets": [dict(asset) for asset in assets if asset["device_id"] == row["device_id"]]
+            })
+            print(row)
