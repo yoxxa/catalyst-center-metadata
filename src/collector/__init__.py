@@ -4,7 +4,8 @@ from bcs_oi_api.models import (
     Device,
     Asset, 
     Contract,
-    PINDetails
+    PINDetails,
+    RiskMitigationDetails,
 )
 class BCSOICollector:
     def __init__(self, client_id, client_secret, region) -> None:
@@ -17,12 +18,14 @@ class BCSOICollector:
         self.assets: pl.DataFrame = None
         self.contracts: pl.DataFrame = None
         self.place_in_network: pl.DataFrame = None
+        self.risk_mitigations: pl.DataFrame = None
 
     def collect_data(self) -> None:
-        self.get_devices()
-        self.get_assets()
-        self.get_contracts()
-        self.get_place_in_network()
+        #self.get_devices()
+        ##self.get_assets()
+        #self.get_contracts()
+        #self.get_place_in_network()
+        self.get_risk_mitigations()
 
     def get_devices(self) -> list[dict]:
         self.devices = pl.DataFrame(
@@ -49,4 +52,9 @@ class BCSOICollector:
     def get_place_in_network(self) -> None:
         self.place_in_network = pl.DataFrame(
             [dict(pin) for pin in self.bcs_sdk.get_output(model=PINDetails)]
+        )
+    
+    def get_risk_mitigations(self) -> None:
+        self.risk_mitigations = pl.DataFrame(
+            [dict(risk_mitigation) for risk_mitigation in self.bcs_sdk.get_output(model=RiskMitigationDetails)]
         )
